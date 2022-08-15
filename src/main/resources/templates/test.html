@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<HTML>
+ <HEAD>
+  <TITLE> Test Document </TITLE>
+
+
+  <SCRIPT LANGUAGE="JavaScript">
+
+		var setValue = function(id, value){
+			document.getElementById(id).value = value;
+		}
+
+
+		var getValue = function(id, retObject){
+			var value = document.getElementById(id).value;
+			retObject["VALUE"] = value;
+		}
+    setValue("cmd", "hello test1");
+    window.addEventListener('message', function(e) {
+      alert('child message');
+      alert(e.data); // { parentData : 'test parent data' }
+      alert("e.origin : " + e.origin); //http://abc.com(부모창 도메인)
+setValue("cmd", "받기는 성공");
+      if(e.data.parentData === 'test parent data'){
+
+      }
+    });
+document.domain = "http://10.10.70.130:8080/";
+    window.onload = function() {
+
+      window.parent.postMessage({ childData : 'test data' }, 'http://10.10.70.130:8080');
+    };
+
+  </SCRIPT>
+
+ </HEAD>
+
+ <BODY>
+  <h2>2022-07-13</h2>
+  cmd : <input type="text" id="cmd" name ="cmd" value="cmd" style="width:600px" /> <br>
+  code : <input type="text" id="code" name ="code" value="code" style="width:600px" /><br>
+  name : <input type="text" id="name" name ="name" value="name" style="width:600px" /><br>
+ </BODY>
+<script>
+    setValue("cmd", "hello test3");
+    //alert("hi hi hi");
+    console.log("hi");
+    window.parent.postMessage({ childData : 'test data' }, 'http://10.10.70.130:8080');
+</script>
+</HTML>

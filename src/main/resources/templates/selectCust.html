@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <title>거래처</title>
+</head>
+<body>
+<div>
+  <h2>▶ 거래처 관리</h2>
+  <form th:action="@{/cust/update}" method="get">
+    <div class="mb-3 mt-3">
+      <div class="mb-3 input-group">
+        <span class="input-group-text">회사</span>
+        <input type="text" class="form-control" id="company" name="company" th:value="${cust.company}"readonly>
+        <span class="input-group-text">사업장</span>
+        <input type="text" class="form-control" id="business_unit" name="business_unit" th:value="${cust.business_unit}"readonly>
+        <span class="input-group-text">거래처번호</span>
+        <input type="text" class="form-control" id="cust_code" name="cust_code" th:value="${cust.cust_code}"readonly>
+        <span class="input-group-text">거래처명</span>
+        <input type="text" class="form-control" id="cust_name" name="cust_name" th:value="${cust.cust_name}"readonly>
+        </div>
+        <div class="mb-3 input-group">
+          <span class="input-group-text">거래처상호</span>
+        <input type="text" class="form-control" id="cust_desc" name="cust_desc" th:value="${cust.cust_desc}">
+          <span class="input-group-text">거래처상태</span>
+        <input type="text" class="form-control" id="status" name="status" th:value="${cust.status}">
+          <span class="input-group-text">신용등급</span>
+        <input type="text" class="form-control" id="grade" name="grade" th:value="${cust.grade}">
+          <span class="input-group-text">사업자번호</span>
+        <input type="text" class="form-control" id="reg_num" name="reg_num" th:value="${cust.reg_num}">
+        <button type="submit" class="btn btn-secondary">수정</button>
+      </div>
+    </div>
+  </form>
+
+</div>
+</body>
+</html>
