@@ -1,6 +1,9 @@
 package com.tysystems.project_management.controller;
 
 import antlr.StringUtils;
+
+import com.tysystems.file.service.FileService;
+import com.tysystems.file.service.JacksonFileService;
 import com.tysystems.project_management.domain.CompositeKey;
 import com.tysystems.project_management.domain.PL_CUST;
 import com.tysystems.project_management.service.PL_CUSTService;
@@ -136,6 +139,13 @@ public class PL_CUSTController {
             throw new RuntimeException(e);
         }
         return "test";
+    }
+
+    @GetMapping("/filetest")
+    public String filetest() {
+        FileService fileService = new JacksonFileService();
+        fileService.saveFile();
+        return "filesave";
     }
 
 }
