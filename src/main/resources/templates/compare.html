@@ -16,6 +16,7 @@
     let reader = new FileReader();
     reader.onload = function () {
         let data = reader.result;
+        console.log(data);
         let workBook = XLSX.read(data, { type: 'binary' });
         workBook.SheetNames.forEach(function (sheetName) {
             // console.log('SheetName: ' + sheetName);
@@ -75,7 +76,7 @@
                     btn.setAttribute("value", "수정");
                     document.getElementById("updateForm").appendChild(btn);
 
-                    document.getElementById("updateForm").submit();
+                    //document.getElementById("updateForm").submit();
                 }
 
                 // thymeleaf로 loop돌리기 끝
