@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<HTML>
+<HEAD>
+    <meta charset="UTF-8">
+    <TITLE> User Test </TITLE>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.5/xlsx.full.min.js"></script>
+    <SCRIPT LANGUAGE="JavaScript" th:inline="javascript">
+  /*<![CDATA[*/ /*]]>*/
+  let userCode = "";
+  let liveGb = "";
+  let check = false;
+  function readExcel() {
+    let input = event.target;
+    let reader = new FileReader();
+    reader.onload = function () {
+        let data = reader.result;
+        let workBook = XLSX.read(data, { type: 'binary' });
+        workBook.SheetNames.forEach(function (sheetName) {
+            // console.log('SheetName: ' + sheetName);
+            let rows = XLSX.utils.sheet_to_json(workBook.Sheets[sheetName]);
+
+            // 0, 1, 2까지 테스트값
+            for(let i = 3; i < rows.length; i++){
+                check = false;
+
+                // thymeleaf로 loop돌리기
+                /*[# th:each="user : ${users}"]*/
+
+                userCode = /*[[${user.user_code}]]*/;
+                liveGb = /*[[${user.live_gb}]]*/;
+
+                // 재직자인데 추가 안된사람 찾기
+                if(rows[i].사번 == userCode && liveGb == 'Y' && rows[i].재직퇴직구분 == '재직자'){
+                    check = true;
+                }
+
+                // 퇴직자인데 퇴직처리 안된사람 찾기
+                if(rows[i].사번 == userCode && liveGb == 'Y' && rows[i].재직퇴직구분 == '퇴직자'){
+
+                    console.log("----------");
+                    // console.log("check: " + check);
+                    console.log("있는 사람!");
+                    console.log(rows[i].사번);
+                    console.log(rows[i].사원);
+                    console.log("----------");
+                    
+                    let inputEle = document.createElement('input');
+                    inputEle.setAttribute("type", "text");
+                    inputEle.setAttribute("name", "user_code");
+                    inputEle.setAttribute("value", rows[i].사번);
+                    document.getElementById("updateForm").appendChild(inputEle);
+
+                    let inputEle2 = document.createElement('input');
+                    inputEle2.setAttribute("type", "text");
+                    inputEle2.setAttribute("name", "user_name");
+                    inputEle2.setAttribute("value", rows[i].사원);
+                    document.getElementById("updateForm").appendChild(inputEle2);
+
+                    let inputEle3 = document.createElement('input');
+                    inputEle3.setAttribute("type", "text");
+                    inputEle3.setAttribute("name", "user_date");
+                    inputEle3.setAttribute("value", /*[[${user.user_date}]]*/);
+                    document.getElementById("updateForm").appendChild(inputEle3);
+
+                    let inputEle4 = document.createElement('input');
+                    inputEle4.setAttribute("type", "text");
+                    inputEle4.setAttribute("name", "end_date");
+                    inputEle4.setAttribute("value", rows[i].퇴사일);
+                    document.getElementById("updateForm").appendChild(inputEle4);
+
+                    let btn = document.createElement('input');
+                    btn.setAttribute("type", "submit");
+                    btn.setAttribute("value", "수정");
+                    document.getElementById("updateForm").appendChild(btn);
+
+                    document.getElementById("updateForm").submit();
+                }
+
+                // thymeleaf로 loop돌리기 끝
+                /*[/]*/
+
+                // 재직자인데 추가 안된사람 찾으면 출력
+                if(rows[i].재직퇴직구분 == "재직자" && !check && false){
+                    console.log("----------");
+                    // console.log("check: " + check);
+                    console.log("없는 사람!");
+                    console.log(rows[i].사번);
+                    console.log(rows[i].사원);
+                    console.log("----------");
+
+                    let inputEle = document.createElement('input');
+                    inputEle.setAttribute("type", "text");
+                    inputEle.setAttribute("name", "user_code");
+                    inputEle.setAttribute("value", rows[i].사번);
+                    document.getElementById("updateForm").appendChild(inputEle);
+
+                    let inputEle2 = document.createElement('input');
+                    inputEle2.setAttribute("type", "text");
+                    inputEle2.setAttribute("name", "user_name");
+                    inputEle2.setAttribute("value", rows[i].사원);
+                    document.getElementById("updateForm").appendChild(inputEle2);
+
+                    let btn = document.createElement('input');
+                    btn.setAttribute("type", "submit");
+                    btn.setAttribute("value", "추가");
+                    document.getElementById("updateForm").appendChild(btn);
+                }
+
+            }
+        })
+    };
+        reader.readAsBinaryString(input.files[0]);
+    }
+    /*]]>*/
+  </SCRIPT>
+
+</HEAD>
+
+<BODY>
+<input type="file" onchange="readExcel()">
+<!-- <div th:each="user : ${users}">
+    <h2>============================</h2>
+    <label th:text="${user.user_name}" th:id="${user.user_code+user.live_gb}" ></label>
+</div> -->
+
+<div>
+    <form th:action="@{/user/update}" method="get" id="updateForm" name="userForm">
+
+    </form>
+</div>
+
+</BODY>
+</HTML>
+
