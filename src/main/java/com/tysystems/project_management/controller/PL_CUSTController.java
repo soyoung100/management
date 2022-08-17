@@ -6,6 +6,7 @@ import com.tysystems.file.service.FileService;
 import com.tysystems.file.service.JacksonFileService;
 import com.tysystems.project_management.domain.CompositeKey;
 import com.tysystems.project_management.domain.PL_CUST;
+import com.tysystems.project_management.dto.PL_CUSTVO;
 import com.tysystems.project_management.service.PL_CUSTService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,11 +142,19 @@ public class PL_CUSTController {
         return "test";
     }
 
-    @GetMapping("/filetest")
-    public String filetest() {
+
+    @GetMapping("/custexcelfile")
+    public String excelFile() {
+        return "custexcelfile";
+    }
+    @PostMapping("custexcelfile")
+    @ResponseBody
+    public void eexcelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
+        
         FileService fileService = new JacksonFileService();
-        fileService.saveFile();
-        return "filesave";
+        fileService.saveFile(pl_CUSTVOList);
+
+        System.out.println("custexcelfile POST");
     }
 
 }
