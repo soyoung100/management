@@ -1,6 +1,6 @@
 package com.tysystems.file.batch;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 import javax.sql.DataSource;
 
@@ -14,24 +14,19 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tysystems.project_management.dto.PL_CUSTVO;
 
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+//@Slf4j
 @Configuration
 @EnableBatchProcessing
 public class JsonBatchConfiguration  {
@@ -43,32 +38,34 @@ public class JsonBatchConfiguration  {
 
     @Bean
     public Job importUserJob(JobCompletionNotificationListener listener, Step step1) {
-    return jobBuilderFactory.get("importUserJob")
-        .incrementer(new RunIdIncrementer())
-        .listener(listener)
-        .flow(step1)
-        .end()
-        .build();
+        return jobBuilderFactory.get("importUserJob")
+            .incrementer(new RunIdIncrementer())
+            .listener(listener)
+            .flow(step1)
+            .end()
+            .build();
     }
     @Bean
-    public Step step1(JsonItemReader<Person> reader, JdbcBatchItemWriter<Person> writer) {
-    return stepBuilderFactory.get("step1")
-        .<Person, Person> chunk(10)
-        .reader(reader)
-        .processor(processor())
-        .writer(writer)
-        .build();
+    public Step step1(JsonItemReader<PL_CUSTVO> reader, JdbcBatchItemWriter<PL_CUSTVO> writer) {
+        return stepBuilderFactory.get("step1")
+            .<PL_CUSTVO, PL_CUSTVO> chunk(10)
+            .reader(reader)
+            .processor(processor())
+            .writer(writer)
+            .build();
     }
 
     @Bean
     @StepScope
-    public JsonItemReader<Person> jsonFileReader() {
+    public JsonItemReader<PL_CUSTVO> jsonFileReader() {
 
-        JacksonJsonObjectReader<Person> jsonObjectReader = new JacksonJsonObjectReader<>(Person.class);
+        String todayDataFilePath = "./filestorage/plcust_" + LocalDate.now() + ".json";
 
-        return new JsonItemReaderBuilder<Person>()
+        JacksonJsonObjectReader<PL_CUSTVO> jsonObjectReader = new JacksonJsonObjectReader<>(PL_CUSTVO.class);
+
+        return new JsonItemReaderBuilder<PL_CUSTVO>()
                 .name("jsonFileReader")
-                .resource(new ClassPathResource("./filestorage/jsondata.json"))
+                .resource(new ClassPathResource(todayDataFilePath))
                 .jsonObjectReader(jsonObjectReader)
                 .build();
     }
@@ -79,12 +76,31 @@ public class JsonBatchConfiguration  {
     }
 
     @Bean
-    public JdbcBatchItemWriter<Person> writer(DataSource dataSource) {
-    return new JdbcBatchItemWriterBuilder<Person>()
-        .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-        .sql("INSERT INTO people (first_name, last_name) VALUES (:firstName, :lastName)")
-        .dataSource(dataSource)
-        .build();
+    public JdbcBatchItemWriter<PL_CUSTVO> writer(DataSource dataSource) {
+
+        String query = "INSERT INTO pl_cust (" + 
+                "company, business_unit, cust_code, cust_name, cust_desc, " + 
+                "status, grade, reg_num, cust_rename, cust_reno, " + 
+                "res_no, business_stat, business_item, tel_no, tax_address, " + 
+                "cust_kind, nation, distribution, cust_eng_name, fax_no, " +
+                "address, eng_address, email_address, homepage, attached_file, " + 
+                "cust_explain, cust_charge, modify_date)" + 
+                "VALUES(" + 
+                "'TSS', 'TSSBU', :cust_code, :cust_name1, :cust_desc, " + 
+                ":status, :grade, :res_no, :cust_rename, :cust_reno, " + 
+                ":res_no, :business_stat, :business_item, :tel_no, :tax_address, " + 
+                ":cust_kind, :nation, :distribution, :cust_eng_name, :fax_no, " + 
+                ":address, :eng_address, :email_address, :homepage, :attached_file, " + 
+                ":cust_explain, :cust_charge, :modify_date) " + 
+                "ON CONFLICT ON CONSTRAINT  xpkpl_cust " + 
+                "DO NOTHING";
+
+        return new JdbcBatchItemWriterBuilder<PL_CUSTVO>()
+            .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+            .sql(query)
+            .assertUpdates(false)
+            .dataSource(dataSource)
+            .build();
     }
 
 }

@@ -6,21 +6,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import com.tysystems.project_management.dto.PL_CUSTVO;
+
 @Component
-public class PersonItemProcessor implements ItemProcessor<Person, Person> {
+public class PersonItemProcessor implements ItemProcessor<PL_CUSTVO, PL_CUSTVO> {
 
   private static final Logger log = LoggerFactory.getLogger(PersonItemProcessor.class);
 
   @Override
-  public Person process(final Person person) throws Exception {
-    final String firstName = person.getFirstName().toUpperCase();
-    final String lastName = person.getLastName().toUpperCase();
+  public PL_CUSTVO process(PL_CUSTVO pL_CUSTVO) throws Exception {
 
-    final Person transformedPerson = new Person(firstName, lastName);
+    String custCode = pL_CUSTVO.getCust_code();
+    String newCustCode = custCode.replaceAll("-", "");
 
-    log.info("Converting (" + person + ") into (" + transformedPerson + ")");
+    pL_CUSTVO.setCust_code(newCustCode);
 
-    return transformedPerson;
+    log.info("Converting from (" + custCode + ") to (" + newCustCode + ")");
+
+    return pL_CUSTVO;
   }
 
 }

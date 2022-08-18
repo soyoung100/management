@@ -2,6 +2,7 @@ package com.tysystems.file.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.context.annotation.Primary;
@@ -16,7 +17,9 @@ public class JacksonFileService implements FileService {
     
     @Override
     public void saveFile(List<PL_CUSTVO> list) {
-        String path = "./src/main/resources/filestorage/test";
+
+        String path = "./src/main/resources/filestorage/plcust_" + 
+                LocalDate.now() + ".json";
 
         try {
             ObjectMapper mapper = new ObjectMapper();
