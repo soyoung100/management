@@ -8,6 +8,8 @@ import com.tysystems.project_management.domain.CompositeKey;
 import com.tysystems.project_management.domain.PL_CUST;
 import com.tysystems.project_management.dto.PL_CUSTVO;
 import com.tysystems.project_management.service.PL_CUSTService;
+
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,8 +30,15 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 //@RequestMapping("/custs") // 주로 명사, 복수로 생성
 public class PL_CUSTController {
 
-    @Autowired
     PL_CUSTService pl_custService;
+    FileService fileService;
+
+    @Autowired
+    public PL_CUSTController(PL_CUSTService pl_custService, FileService fileService) {
+        this.pl_custService = pl_custService;
+        this.fileService = fileService;
+    }
+
     // 전체 조회
     @GetMapping("/custs")
     public String getLists(Model model, @RequestParam(value = "page", required = false) Integer page/*, @RequestParam("size") Integer size*/) {
@@ -151,10 +160,8 @@ public class PL_CUSTController {
     @ResponseBody
     public void eexcelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
         
-        FileService fileService = new JacksonFileService();
         fileService.saveFile(pl_CUSTVOList);
 
-        System.out.println("custexcelfile POST");
     }
 
 }
