@@ -1,6 +1,5 @@
-package com.tysystems.file.batch;
+package com.tysystems.batch;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,22 +15,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Component
-public class JobScheduler {
+public class BatchJobScheduler {
 
     @Autowired
     JobLauncher jobLauncher;
-    @Autowired
-    JsonBatchConfiguration jsonBatchConfiguration;
-    @Autowired
-    JobCompletionNotificationListener listener;
 
+    @Autowired
+    BatchConfiguration batchConfiguration;
+    @Autowired
+    BatchJobListener listener;
 
-    //30초마다 실행
-    @Scheduled(cron = "0/30 * * * * *")
+    private static final Logger log = LoggerFactory.getLogger(BatchJobScheduler.class);
+
+    @Scheduled(cron = "0 46 16 * * *")
     public void runJob() {
         
         Map<String, JobParameter> confMap = new HashMap<>();
@@ -40,7 +37,9 @@ public class JobScheduler {
 
         try {
 
-            jobLauncher.run(jsonBatchConfiguration.importUserJob(listener), jobParameters);
+            log.info("(Spring Batch) Job Scheduler started.");
+
+            jobLauncher.run(batchConfiguration.importJob(), jobParameters);
 
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException
                 | JobParametersInvalidException | org.springframework.batch.core.repository.JobRestartException e) {

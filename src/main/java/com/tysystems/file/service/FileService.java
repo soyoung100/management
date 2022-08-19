@@ -2,9 +2,8 @@ package com.tysystems.file.service;
 
 import java.util.List;
 
-import com.tysystems.project_management.dto.PL_CUSTVO;
-
-public interface FileService {
+public interface FileService<T> {
     
-    public void saveFile(List<PL_CUSTVO> list);
+    public void saveFile(List<T> list, String path);
+    
 }

@@ -1,16 +1,17 @@
 package com.tysystems.project_management.controller;
 
-import antlr.StringUtils;
+import com.tysystems.batch.BatchJobListener;
+
+//import antlr.StringUtils;
 
 import com.tysystems.file.service.FileService;
-import com.tysystems.file.service.JacksonFileService;
 import com.tysystems.project_management.domain.CompositeKey;
 import com.tysystems.project_management.domain.PL_CUST;
 import com.tysystems.project_management.dto.PL_CUSTVO;
 import com.tysystems.project_management.service.PL_CUSTService;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -31,10 +33,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class PL_CUSTController {
 
     PL_CUSTService pl_custService;
-    FileService fileService;
+    FileService<PL_CUSTVO> fileService;
 
     @Autowired
-    public PL_CUSTController(PL_CUSTService pl_custService, FileService fileService) {
+    public PL_CUSTController(PL_CUSTService pl_custService, FileService<PL_CUSTVO> fileService) {
         this.pl_custService = pl_custService;
         this.fileService = fileService;
     }
@@ -151,16 +153,22 @@ public class PL_CUSTController {
         return "test";
     }
 
-
     @GetMapping("/custexcelfile")
     public String excelFile() {
         return "custexcelfile";
     }
-    @PostMapping("custexcelfile")
+    @PostMapping("/custexcelfile")
     @ResponseBody
-    public void eexcelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
-        
-        fileService.saveFile(pl_CUSTVOList);
+    public String eexcelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
+
+        String path = "./src/main/resources/filestorage/plcust_" + LocalDate.now() + ".json";
+
+        // batchIsRunning 값 잘 들어가는지 이후 확인해보기!
+        if (BatchJobListener.batchIsRunning) return "isRunning";
+        else {
+            fileService.saveFile(pl_CUSTVOList, path);
+            return "completed";
+        }
 
     }
 

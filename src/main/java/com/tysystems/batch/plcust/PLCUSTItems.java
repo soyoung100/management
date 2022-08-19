@@ -1,16 +1,10 @@
-package com.tysystems.file.batch;
+package com.tysystems.batch.plcust;
 
 import java.time.LocalDate;
 
 import javax.sql.DataSource;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -21,41 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
 
 import com.tysystems.project_management.dto.PL_CUSTVO;
 
-//import lombok.extern.slf4j.Slf4j;
-
-//@Slf4j
 @Configuration
-@EnableBatchProcessing
-public class JsonBatchConfiguration  {
-    
-    @Autowired
-    public JobBuilderFactory jobBuilderFactory;
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
-    @Autowired
-    DataSource dataSource;
+@Component
+public class PLCUSTItems {
 
-    @Bean
-    public Job importUserJob(JobCompletionNotificationListener listener) {
-        return jobBuilderFactory.get("importUserJob")
-            .incrementer(new RunIdIncrementer())
-            .listener(listener)
-            .flow(step1())
-            .end()
-            .build();
-    }
-    @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("step1")
-            .<PL_CUSTVO, PL_CUSTVO> chunk(10)
-            .reader(jsonFileReader())
-            .processor(processor())
-            .writer(writer(dataSource))
-            .build();
-    }
+    @Autowired
+    public DataSource dataSource;
 
     @Bean
     @StepScope
@@ -73,12 +42,12 @@ public class JsonBatchConfiguration  {
     }
 
     @Bean
-    public PersonItemProcessor processor() {
-        return new PersonItemProcessor();
+    public PLCUSTItemProcessor processor() {
+        return new PLCUSTItemProcessor();
     }
 
     @Bean
-    public JdbcBatchItemWriter<PL_CUSTVO> writer(DataSource dataSource) {
+    public JdbcBatchItemWriter<PL_CUSTVO> writer() {
 
         String query = "INSERT INTO pl_cust (" + 
                 "company, business_unit, cust_code, cust_name, cust_desc, " + 
@@ -98,11 +67,10 @@ public class JsonBatchConfiguration  {
                 "DO NOTHING";
 
         return new JdbcBatchItemWriterBuilder<PL_CUSTVO>()
+            .assertUpdates(false)
             .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
             .sql(query)
-            .assertUpdates(false)
             .dataSource(dataSource)
             .build();
     }
-
 }
