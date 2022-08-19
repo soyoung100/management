@@ -35,23 +35,25 @@ public class JsonBatchConfiguration  {
     public JobBuilderFactory jobBuilderFactory;
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    DataSource dataSource;
 
     @Bean
-    public Job importUserJob(JobCompletionNotificationListener listener, Step step1) {
+    public Job importUserJob(JobCompletionNotificationListener listener) {
         return jobBuilderFactory.get("importUserJob")
             .incrementer(new RunIdIncrementer())
             .listener(listener)
-            .flow(step1)
+            .flow(step1())
             .end()
             .build();
     }
     @Bean
-    public Step step1(JsonItemReader<PL_CUSTVO> reader, JdbcBatchItemWriter<PL_CUSTVO> writer) {
+    public Step step1() {
         return stepBuilderFactory.get("step1")
             .<PL_CUSTVO, PL_CUSTVO> chunk(10)
-            .reader(reader)
+            .reader(jsonFileReader())
             .processor(processor())
-            .writer(writer)
+            .writer(writer(dataSource))
             .build();
     }
 
