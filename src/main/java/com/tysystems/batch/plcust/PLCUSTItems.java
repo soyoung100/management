@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+
 import com.tysystems.project_management.dto.PL_CUSTVO;
 
 @Configuration
@@ -28,15 +29,16 @@ public class PLCUSTItems {
 
     @Bean
     @StepScope
-    public JsonItemReader<PL_CUSTVO> jsonFileReader() {
+    public JsonItemReader<PL_CUSTVO> jsonFileReader(){
 
         String todayDataFilePath = "./filestorage/plcust_" + LocalDate.now() + ".json";
-
+        ClassPathResource file = new ClassPathResource(todayDataFilePath);
+        
         JacksonJsonObjectReader<PL_CUSTVO> jsonObjectReader = new JacksonJsonObjectReader<>(PL_CUSTVO.class);
 
         return new JsonItemReaderBuilder<PL_CUSTVO>()
                 .name("jsonFileReader")
-                .resource(new ClassPathResource(todayDataFilePath))
+                .resource(file)
                 .jsonObjectReader(jsonObjectReader)
                 .build();
     }

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.tysystems.batch.plcust.PLCUSTItems;
+import com.tysystems.batch.plcust.PLCUSTStepExecutionListener;
 import com.tysystems.project_management.dto.PL_CUSTVO;
 
 @Configuration
@@ -30,6 +31,8 @@ public class BatchConfiguration  {
     private PLCUSTItems pLCUSTItems;
     @Autowired
     private BatchJobListener listener;
+    @Autowired
+    private PLCUSTStepExecutionListener pLCUSTStepExecutionListener;
 
     @Bean
     public Job importJob() {
@@ -44,6 +47,7 @@ public class BatchConfiguration  {
     @Bean
     public Step stepPLCUST() {
         return stepBuilderFactory.get("stepPLCUST")
+            .listener(pLCUSTStepExecutionListener)
             .<PL_CUSTVO, PL_CUSTVO> chunk(10)
             .reader(pLCUSTItems.jsonFileReader())
             .processor(pLCUSTItems.processor())

@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class BatchJobListener extends JobExecutionListenerSupport {
 
-    public static boolean batchIsRunning = false;
-
     private static final Logger log = LoggerFactory.getLogger(BatchJobListener.class);
 
     private final JdbcTemplate jdbcTemplate;
@@ -29,8 +27,6 @@ public class BatchJobListener extends JobExecutionListenerSupport {
         long num = jdbcTemplate.queryForObject("select count(*) from pl_cust", Long.class);
         log.info("(Spring Batch) JOB STARTED. There are " + num + " rows in table 'pl_cust'.");
         
-        batchIsRunning = true;
-
     }
 
     @Override
@@ -40,8 +36,6 @@ public class BatchJobListener extends JobExecutionListenerSupport {
             long num = jdbcTemplate.queryForObject("select count(*) from pl_cust", Long.class);
             log.info("(Spring Batch) JOB FINISHED. There are " + num + " rows in table 'pl_cust'.");
         }
-
-        batchIsRunning = false;
 
     }
 }

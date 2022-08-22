@@ -1,6 +1,6 @@
 package com.tysystems.project_management.controller;
 
-import com.tysystems.batch.BatchJobListener;
+import com.tysystems.batch.support.BatchService;
 
 //import antlr.StringUtils;
 
@@ -153,6 +153,10 @@ public class PL_CUSTController {
         return "test";
     }
 
+
+    @Autowired
+    private BatchService batchService;
+    
     @GetMapping("/custexcelfile")
     public String excelFile() {
         return "custexcelfile";
@@ -163,8 +167,8 @@ public class PL_CUSTController {
 
         String path = "./src/main/resources/filestorage/plcust_" + LocalDate.now() + ".json";
 
-        // batchIsRunning 값 잘 들어가는지 이후 확인해보기!
-        if (BatchJobListener.batchIsRunning) return "isRunning";
+        // Spring Batch가 돌아가고 있는 중이면 파일 업로드 막음
+        if (batchService.isBatchRunning()) return "isRunning";
         else {
             fileService.saveFile(pl_CUSTVOList, path);
             return "completed";
