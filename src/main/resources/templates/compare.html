@@ -16,11 +16,25 @@
     let reader = new FileReader();
     reader.onload = function () {
         let data = reader.result;
-        console.log(data);
         let workBook = XLSX.read(data, { type: 'binary' });
         workBook.SheetNames.forEach(function (sheetName) {
             // console.log('SheetName: ' + sheetName);
             let rows = XLSX.utils.sheet_to_json(workBook.Sheets[sheetName]);
+
+            let upfrm = document.getElementById("updateForm");
+
+            let userList = new Array();
+
+            let userInfo0 = new Object();
+            userInfo0.user_code = "Default User";
+            userInfo0.user_name = "Default User";
+            userInfo0.org_nm = "Default User";
+            userInfo0.start_date = "Default User";
+            userInfo0.user_date = "Default User";
+            userInfo0.end_date = "Default User";
+            userInfo0.user_desc = "Default User";
+
+            userList.push(userInfo0);
 
             // 0, 1, 2까지 테스트값
             for(let i = 3; i < rows.length; i++){
@@ -39,77 +53,86 @@
 
                 // 퇴직자인데 퇴직처리 안된사람 찾기
                 if(rows[i].사번 == userCode && liveGb == 'Y' && rows[i].재직퇴직구분 == '퇴직자'){
+                    // json객체 생성해서 값들 보내고 받기
+                    let userInfo = new Object();
+                    userInfo.user_code = rows[i].사번;
+                    userInfo.user_name = "";
+                    userInfo.org_nm = "";
+                    userInfo.start_date = "";
+                    userInfo.user_date = /*[[${user.user_date}]]*/;
+                    userInfo.end_date = rows[i].퇴사일;
+                    userInfo.user_desc = "";
 
-                    console.log("----------");
-                    // console.log("check: " + check);
-                    console.log("있는 사람!");
-                    console.log(rows[i].사번);
-                    console.log(rows[i].사원);
-                    console.log("----------");
-                    
-                    let inputEle = document.createElement('input');
-                    inputEle.setAttribute("type", "text");
-                    inputEle.setAttribute("name", "user_code");
-                    inputEle.setAttribute("value", rows[i].사번);
-                    document.getElementById("updateForm").appendChild(inputEle);
-
-                    let inputEle2 = document.createElement('input');
-                    inputEle2.setAttribute("type", "text");
-                    inputEle2.setAttribute("name", "user_name");
-                    inputEle2.setAttribute("value", rows[i].사원);
-                    document.getElementById("updateForm").appendChild(inputEle2);
-
-                    let inputEle3 = document.createElement('input');
-                    inputEle3.setAttribute("type", "text");
-                    inputEle3.setAttribute("name", "user_date");
-                    inputEle3.setAttribute("value", /*[[${user.user_date}]]*/);
-                    document.getElementById("updateForm").appendChild(inputEle3);
-
-                    let inputEle4 = document.createElement('input');
-                    inputEle4.setAttribute("type", "text");
-                    inputEle4.setAttribute("name", "end_date");
-                    inputEle4.setAttribute("value", rows[i].퇴사일);
-                    document.getElementById("updateForm").appendChild(inputEle4);
-
-                    let btn = document.createElement('input');
-                    btn.setAttribute("type", "submit");
-                    btn.setAttribute("value", "수정");
-                    document.getElementById("updateForm").appendChild(btn);
-
-                    //document.getElementById("updateForm").submit();
+                    userList.push(userInfo);
                 }
 
                 // thymeleaf로 loop돌리기 끝
                 /*[/]*/
 
                 // 재직자인데 추가 안된사람 찾으면 출력
-                if(rows[i].재직퇴직구분 == "재직자" && !check && false){
-                    console.log("----------");
-                    // console.log("check: " + check);
-                    console.log("없는 사람!");
-                    console.log(rows[i].사번);
-                    console.log(rows[i].사원);
-                    console.log("----------");
+                if(rows[i].재직퇴직구분 == "재직자" && !check){
+                    // json객체 생성해서 값들 보내고 받기
+                    let userInfo2 = new Object();
+                    userInfo2.user_code = rows[i].사번;
+                    userInfo2.user_name = rows[i].사원;
+                    userInfo2.org_nm = rows[i].부서;
+                    userInfo2.start_date = rows[i].입사일;
+                    userInfo2.user_date = "";
+                    userInfo2.end_date = rows[i].퇴사일;
+                    userInfo2.user_desc = rows[i].직책;
 
-                    let inputEle = document.createElement('input');
-                    inputEle.setAttribute("type", "text");
-                    inputEle.setAttribute("name", "user_code");
-                    inputEle.setAttribute("value", rows[i].사번);
-                    document.getElementById("updateForm").appendChild(inputEle);
-
-                    let inputEle2 = document.createElement('input');
-                    inputEle2.setAttribute("type", "text");
-                    inputEle2.setAttribute("name", "user_name");
-                    inputEle2.setAttribute("value", rows[i].사원);
-                    document.getElementById("updateForm").appendChild(inputEle2);
-
-                    let btn = document.createElement('input');
-                    btn.setAttribute("type", "submit");
-                    btn.setAttribute("value", "추가");
-                    document.getElementById("updateForm").appendChild(btn);
+                    userList.push(userInfo2);
                 }
 
             }
+
+            // form에 넣기
+            for(let index in userList){
+                let inputEle  = document.createElement('input');
+                let inputEle2 = document.createElement('input');
+                let inputEle3 = document.createElement('input');
+                let inputEle4 = document.createElement('input');
+                let inputEle5 = document.createElement('input');
+                let inputEle6 = document.createElement('input');
+                let inputEle7 = document.createElement('input');
+
+                inputEle.setAttribute("type", "hidden");
+                inputEle.setAttribute("name", "user_code");
+                inputEle.setAttribute("value", userList[index].user_code);
+
+                inputEle2.setAttribute("type", "hidden");
+                inputEle2.setAttribute("name", "user_name");
+                inputEle2.setAttribute("value", userList[index].user_name);
+
+                inputEle3.setAttribute("type", "hidden");
+                inputEle3.setAttribute("name", "org_nm");
+                inputEle3.setAttribute("value", userList[index].org_nm);
+
+                inputEle4.setAttribute("type", "hidden");
+                inputEle4.setAttribute("name", "start_date");
+                inputEle4.setAttribute("value", userList[index].start_date);
+
+                inputEle5.setAttribute("type", "hidden");
+                inputEle5.setAttribute("name", "user_date");
+                inputEle5.setAttribute("value", userList[index].user_date);
+
+                inputEle6.setAttribute("type", "hidden");
+                inputEle6.setAttribute("name", "end_date");
+                inputEle6.setAttribute("value", userList[index].end_date);
+
+                inputEle7.setAttribute("type", "hidden");
+                inputEle7.setAttribute("name", "user_desc");
+                inputEle7.setAttribute("value", userList[index].user_desc);
+
+                upfrm.appendChild(inputEle);
+                upfrm.appendChild(inputEle2);
+                upfrm.appendChild(inputEle3);
+                upfrm.appendChild(inputEle4);
+                upfrm.appendChild(inputEle5);
+                upfrm.appendChild(inputEle6);
+                upfrm.appendChild(inputEle7);
+            }
+            upfrm.submit();
         })
     };
         reader.readAsBinaryString(input.files[0]);
@@ -120,17 +143,13 @@
 </HEAD>
 
 <BODY>
-<input type="file" onchange="readExcel()">
-<!-- <div th:each="user : ${users}">
-    <h2>============================</h2>
-    <label th:text="${user.user_name}" th:id="${user.user_code+user.live_gb}" ></label>
-</div> -->
-
-<div>
-    <form th:action="@{/user/update}" method="get" id="updateForm" name="userForm">
-
-    </form>
-</div>
+    <h2>사원 정보 업데이트</h2>
+    <p>excel 파일에서 상단 <b>사원명부조회 행을 삭제</b>하여 주시고, <br>
+        재직/퇴사구분 열의 컬럼명은 <b>재직퇴사구분 으로 수정</b>하여 업로드 하여주세요.</p>
+    <input type="file" onchange="readExcel()">
+    <div>
+        <form th:action="@{/user/update}" method="post" id="updateForm" name="userForm"></form>
+    </div>
 
 </BODY>
 </HTML>
