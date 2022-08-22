@@ -22,7 +22,7 @@ public class PL_USERService {
 
     // Key값으로 해당 유저 조회
     public PL_USER getList(UserKey userKey){
-        return repository.findById(userKey).orElseThrow(NoSuchElementException::new);
+        return repository.findById(userKey).orElse(new PL_USER());
     }
 
     // update, insert

@@ -47,7 +47,6 @@ public class PL_USER {
 
     @Temporal(TemporalType.DATE)
     private Date end_date;
-
     @Temporal(TemporalType.DATE)
     private Date create_date;
 
