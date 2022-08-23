@@ -33,7 +33,7 @@ public class BatchJobScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(BatchJobScheduler.class);
 
-    @Scheduled(cron = "0 49 16 * * *")
+    @Scheduled(cron = "0 55 10 * * *")
     public void runJob() {
 
         String todayDataFilePath = "./filestorage/plcust_" + LocalDate.now() + ".json";

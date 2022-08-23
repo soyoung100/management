@@ -1,6 +1,8 @@
 package com.tysystems.project_management.controller;
 
 import com.tysystems.batch.support.BatchService;
+import com.tysystems.file.FileStatus;
+import com.tysystems.file.plcust.PLCUSTDataFormValidator;
 
 //import antlr.StringUtils;
 
@@ -10,9 +12,8 @@ import com.tysystems.project_management.domain.PL_CUST;
 import com.tysystems.project_management.dto.PL_CUSTVO;
 import com.tysystems.project_management.service.PL_CUSTService;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -27,19 +28,20 @@ import java.util.List;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Controller
-@RequiredArgsConstructor
+@AllArgsConstructor
 //@RestController
 //@RequestMapping("/custs") // 주로 명사, 복수로 생성
 public class PL_CUSTController {
 
     PL_CUSTService pl_custService;
     FileService<PL_CUSTVO> fileService;
+    BatchService batchService;
 
-    @Autowired
+    /*@Autowired
     public PL_CUSTController(PL_CUSTService pl_custService, FileService<PL_CUSTVO> fileService) {
         this.pl_custService = pl_custService;
         this.fileService = fileService;
-    }
+    }*/
 
     // 전체 조회
     @GetMapping("/custs")
@@ -154,24 +156,29 @@ public class PL_CUSTController {
     }
 
 
-    @Autowired
-    private BatchService batchService;
-    
-    @GetMapping("/custexcelfile")
+
+    @GetMapping("/cust/excelfile")
     public String excelFile() {
         return "custexcelfile";
     }
-    @PostMapping("/custexcelfile")
+    @PostMapping("/cust/excelfile")
     @ResponseBody
-    public String eexcelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
+    public String excelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
 
         String path = "./src/main/resources/filestorage/plcust_" + LocalDate.now() + ".json";
+        PLCUSTDataFormValidator validator = new PLCUSTDataFormValidator();
 
+        // 파일 검사
+        int valiInt = validator.validateForm(pl_CUSTVOList);
+        if (valiInt == 1) return FileStatus.isFileNull;
+        else if (valiInt == 2) return FileStatus.isKeyNull;
+
+        // 파일 검사시 이상이 없고, 
         // Spring Batch가 돌아가고 있는 중이면 파일 업로드 막음
-        if (batchService.isBatchRunning()) return "isRunning";
+        if (batchService.isBatchRunning()) return FileStatus.isRunning;
         else {
             fileService.saveFile(pl_CUSTVOList, path);
-            return "completed";
+            return FileStatus.completed;
         }
 
     }

@@ -30,7 +30,7 @@ function sendExcelArray(exExcelData) {
     let excelData = JSON.stringify(exExcelData);
 
     $.ajax({
-		url: '/custexcelfile',
+		url: '/cust/excelfile',
 		data: excelData,
 		method: 'POST',
 		contentType: 'application/json',
@@ -41,6 +41,10 @@ function sendExcelArray(exExcelData) {
             } else if (data == "completed") {
                 showExcel(excelData);
 			    alert("데이터가 성공적으로 저장되었습니다.");
+            } else if (data == "isNull") {
+                alert("비어있는 파일입니다. 확인 후 다시 시도해주세요.");
+            } else if (data == "isKeyNull") {
+                alert("적절한 파일이 아니거나, 필수 데이터가 누락된 파일입니다. 확인 후 다시 시도해주세요.");
             } else {
                 alert("파일 업로드에 실패했습니다. 잠시 뒤에 다시 시도해주세요.");
             }
