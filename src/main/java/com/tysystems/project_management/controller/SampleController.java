@@ -1,8 +1,11 @@
 package com.tysystems.project_management.controller;
 
+import com.tysystems.project_management.domain.MtxUser;
 import com.tysystems.project_management.domain.OrgInfo;
 import com.tysystems.project_management.domain.PL_USER;
 import com.tysystems.project_management.domain.UserKey;
+import com.tysystems.project_management.service.MtxGroupLinkService;
+import com.tysystems.project_management.service.MtxUserService;
 import com.tysystems.project_management.service.OrgInfoService;
 import com.tysystems.project_management.service.PL_USERService;
 import lombok.Data;
@@ -25,6 +28,10 @@ public class SampleController {
     PL_USERService service;
     @Autowired
     OrgInfoService orgInfoService;
+    @Autowired
+    MtxUserService mtxUserService;
+    @Autowired
+    MtxGroupLinkService mtxGroupLinkService;
 
     @RequestMapping(method = RequestMethod.GET, path = "/compare")
     public void compare(Model model){
@@ -61,6 +68,7 @@ public class SampleController {
                 System.out.println("end_date: " + end_dates[i]);
                 System.out.println("=====================");
 
+                // pl_user update: 퇴사자일경우 live_gb를 'N'로 변경, end_date를 퇴사일로 변경
                 UserKey userKey = new UserKey();
                 userKey.setUser_date(user_dates[i]);
                 userKey.setUser_code(user_codes[i]);
@@ -69,6 +77,8 @@ public class SampleController {
 
                 PL_USER pl_user = service.getList(userKey);
                 System.out.println(pl_user.getUser_name());
+
+                // 존재하지 않는 사람이면 에러나니까 예외처리
                 if (pl_user.getUser_name() == null){
                     System.out.println("no exist user");
                     continue;
@@ -77,6 +87,21 @@ public class SampleController {
                 pl_user.setEnd_date(new SimpleDateFormat("yyyy-MM-dd").parse(end_dates[i]));
 
                 service.save(pl_user);
+
+                System.out.println("pl_user table update");
+
+                // mtx_user update: 퇴사자일경우 lock_flag를 'Y'로 변경
+                MtxUser mtxUser = mtxUserService.getList(user_codes[i]);
+                mtxUser.setLock_flag("Y");
+
+                mtxUserService.update(mtxUser);
+
+                System.out.println("mtx_user table update");
+
+                // mtx_group_link delete: 퇴사자일경우 권한관련 행들을 삭제
+                mtxGroupLinkService.delete(user_codes[i]);
+
+                System.out.println("mtx_group_link table delete");
             } else { // 입사자일경우
                 System.out.println("*****[start user info]*****");
                 System.out.println("user_code: " + user_codes[i]);
