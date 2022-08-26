@@ -1,5 +1,6 @@
 package com.tysystems.batch.plcust;
 
+import java.io.File;
 import java.time.LocalDate;
 
 import javax.sql.DataSource;
@@ -14,7 +15,7 @@ import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 
 
@@ -31,14 +32,14 @@ public class PLCUSTItems {
     @StepScope
     public JsonItemReader<PL_CUSTVO> jsonFileReader(){
 
-        String todayDataFilePath = "./filestorage/plcust_" + LocalDate.now() + ".json";
-        ClassPathResource file = new ClassPathResource(todayDataFilePath);
+        String todayDataFilePath = "./filestorage/plcust/plcust_" + LocalDate.now() + ".json";
+        FileSystemResource  excelFilePath = new FileSystemResource(new File(todayDataFilePath));
         
         JacksonJsonObjectReader<PL_CUSTVO> jsonObjectReader = new JacksonJsonObjectReader<>(PL_CUSTVO.class);
 
         return new JsonItemReaderBuilder<PL_CUSTVO>()
                 .name("jsonFileReader")
-                .resource(file)
+                .resource(excelFilePath)
                 .jsonObjectReader(jsonObjectReader)
                 .build();
     }

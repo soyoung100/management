@@ -21,9 +21,7 @@ public class PLCUSTStepExecutionListener implements StepExecutionListener {
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-
         log.info("(Spring Batch) afterStep");
-
         return null;
     }
 }

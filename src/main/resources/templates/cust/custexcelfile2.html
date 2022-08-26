@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>거래처 엑셀 파일로 추가 - 연결 페이지</title>
+
+    <!-- BI-Matrix에서만 연결되는 페이지 -->
+
+</head>
+
+<body>
+    
+    <h1>연결 페이지</h1>
+	<p>거래처를 엑셀 파일로 추가하는 페이지로 연결할 수 있도록 도와주는 페이지 입니다.</p>
+	<p>아래 "새 창 띄우기" 버튼을 누르면 새 창으로 연결됩니다.</p>
+	<p>브라우저 환경에서만 가능합니다. 만일 연결에 실패하면 브라우저 환경에서 다시 시도해주세요.</p>
+
+	<button onclick="connectTo()">새 창 띄우기</button>
+
+	<script>
+		function connectTo() {
+			// BI-Matrix에서 바로 연결되는 주소이기 때문에 상대경로로 적으면 안됨
+            window.open('http://10.10.70.130:4000/cust/excelfile');
+            //window.open('http://localhost:4000/cust/excelfile');
+		}
+	</script>
+
+</body>
+
+</html>
