@@ -1,6 +1,9 @@
 package com.tysystems.project_management.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tysystems.batch.support.BatchService;
+import com.tysystems.file.EachFilePaths;
+import com.tysystems.file.FilePathDTO;
 import com.tysystems.file.FileStatus;
 import com.tysystems.file.plcust.PLCUSTDataFormValidator;
 
@@ -10,6 +13,7 @@ import com.tysystems.file.service.FileService;
 import com.tysystems.project_management.domain.CompositeKey;
 import com.tysystems.project_management.domain.PL_CUST;
 import com.tysystems.project_management.dto.PL_CUSTVO;
+import com.tysystems.project_management.dto.PL_CUSTVOList;
 import com.tysystems.project_management.service.PL_CUSTService;
 
 import lombok.AllArgsConstructor;
@@ -21,7 +25,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -156,19 +164,21 @@ public class PL_CUSTController {
     }
 
 
-
+    /*
+     * 엑셀 파일 올리면, json으로 바꿔서 저장
+     */
     @GetMapping("/cust/excelfile")
     public String excelFile() {
-        return "custexcelfile";
+        return "cust/custexcelfile";
     }
     @PostMapping("/cust/excelfile")
     @ResponseBody
     public String excelFileSave(@RequestBody List<PL_CUSTVO> pl_CUSTVOList) {
 
-        String path = "./src/main/resources/filestorage/plcust_" + LocalDate.now() + ".json";
-        PLCUSTDataFormValidator validator = new PLCUSTDataFormValidator();
+        String excelFilePath = EachFilePaths.custFilePathWithoutName + "plcust_" + LocalDate.now() + ".json";
 
         // 파일 검사
+        PLCUSTDataFormValidator validator = new PLCUSTDataFormValidator();
         int valiInt = validator.validateForm(pl_CUSTVOList);
         if (valiInt == 1) return FileStatus.isFileNull;
         else if (valiInt == 2) return FileStatus.isKeyNull;
@@ -177,10 +187,50 @@ public class PL_CUSTController {
         // Spring Batch가 돌아가고 있는 중이면 파일 업로드 막음
         if (batchService.isBatchRunning()) return FileStatus.isRunning;
         else {
-            fileService.saveFile(pl_CUSTVOList, path);
+            fileService.saveFile(pl_CUSTVOList, excelFilePath);
             return FileStatus.completed;
         }
 
+    }
+    // BI-Matrix에서만 연결되는 페이지(/cust/excelfile로 연결해주는 페이지)
+    @GetMapping("/cust/excelfile2")
+    public String excelFile2() {
+        return "cust/custexcelfile2";
+    }
+
+    /*
+     * 저장된 엑셀 파일 목록 보여줌
+     */
+    @GetMapping("/cust/excelfile/list")
+    public String excelFileList() {
+        return "cust/custexcelfilelist";
+    }
+    @GetMapping("/cust/excelfile/list/names")
+    @ResponseBody
+    public List<FilePathDTO> excelFileGetList() {
+        
+        List<FilePathDTO> fileNames = fileService.fileList(EachFilePaths.custFilePathWithoutName);
+        return fileNames;
+    }
+
+    /*
+     * 저장된 엑셀 파일들 내용 확인 및 삭제
+     */
+    @GetMapping("/cust/excelfile/list/one")
+    public String excelFileOne() {
+        return "cust/custexcelfileone";
+    }
+    @DeleteMapping("/cust/excelfile/list/one")
+    @ResponseBody
+    public String excelFileOneDelete(@RequestParam("name") String name) {
+
+        return String.valueOf(fileService.deleteFile(EachFilePaths.custFilePathWithoutName, name));
+    }
+    @GetMapping("/cust/excelfile/list/one/content")
+    @ResponseBody
+    public List<String> excelFileOneContent(@RequestParam("name") String name) throws FileNotFoundException, IOException {
+
+        return fileService.fileContent(EachFilePaths.custFilePathWithoutName, name);
     }
 
 }
